@@ -5,14 +5,15 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Start in the loading state only if there is a saved token to check.
+  const [loading, setLoading] = useState(() =>
+    Boolean(localStorage.getItem("token")),
+  );
 
   // When the app opens, check if a saved token is still valid
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      setLoading(false);
-      return;
-    }
+    if (!localStorage.getItem("token")) return;
+
     api
       .get("/me")
       .then((res) => setUser(res.data))
@@ -40,4 +41,5 @@ export function AuthProvider({ children }) {
 }
 
 // A shortcut so any page can write: const { user } = useAuth();
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
