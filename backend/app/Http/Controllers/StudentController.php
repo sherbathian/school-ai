@@ -22,7 +22,7 @@ class StudentController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'roll_number' => 'required|unique:students',
+            'roll_no' => 'required|unique:students',
             'class_name' => 'required|string',
         ]);
         return Student::create($data);
@@ -41,10 +41,14 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        $student->update($request->validate([
-            'name' => 'sometimes|string|max:255',
-            'class_name' => 'sometimes|string',
-        ]));
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'roll_no' => 'required|unique:students,roll_no,' . $student->id,
+            'class_name' => 'required|string',
+            'guardian_phone' => 'nullable|string',
+        ]);
+
+        $student->update($data);
         return $student;
     }
 
