@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\ChangePasswordRequest;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -39,6 +41,30 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+        return response()->noContent();
+    }
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        if (! Hash::check($request->validated('current_password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['The current password is incorrect.'],
+            ]);
+        }
+
+        $user->update(['password' => $request->validated('password')]);
+
+        // Sign out every other device, but keep the one making this request.
+        $current = $user->currentAccessToken();
+        $user->tokens()
+            ->when(
+                $current instanceof PersonalAccessToken,
+                fn($query) => $query->where('id', '!=', $current->id),
+            )
+            ->delete();
+
         return response()->noContent();
     }
 }

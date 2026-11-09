@@ -34,4 +34,11 @@ class SchoolPolicy
     {
         return false;
     }
+
+    // Attaching an account that already exists elsewhere is super admin only.
+    // Super admins pass through Gate::before, so this is false for everyone else.
+    public function attachExistingUser(User $user, School $school): bool
+    {
+        return false;
+    }
 }
