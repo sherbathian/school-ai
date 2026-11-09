@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -25,14 +26,14 @@ class AuthController extends Controller
         }
 
         return [
-            'token' => $user->createToken('school-app')->plainTextToken,
-            'user' => $user,
+            'token' => $user->createToken('school-app', ['*'], now()->addHours(8))->plainTextToken,
+            'user' => (new UserResource($user->load('schools')))->resolve(),
         ];
     }
 
     public function me(Request $request)
     {
-        return $request->user();
+        return (new UserResource($request->user()->load('schools')))->resolve();
     }
 
     public function logout(Request $request)

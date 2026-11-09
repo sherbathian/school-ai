@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Enums\SchoolRole;
+use App\Models\School;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,19 +17,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (! app()->environment('local', 'testing')) {
+            throw new \RuntimeException('Demo data may only be seeded locally.');
+        }
 
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@school.test',
-            'password' => 'password',
-            'role' => 'admin',
+        User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'super@school.test',
+            'is_super_admin' => true,
         ]);
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        //     'role' => 'student',
-        // ]);
+        $school = School::create(['name' => 'Demo School', 'slug' => 'demo-school']);
+
+        $admin = User::factory()->create(['name' => 'Demo Admin', 'email' => 'admin@school.test']);
+        $teacher = User::factory()->create(['name' => 'Demo Teacher', 'email' => 'teacher@school.test']);
+
+        $school->users()->attach($admin, ['role' => SchoolRole::Admin->value]);
+        $school->users()->attach($teacher, ['role' => SchoolRole::Teacher->value]);
     }
 }
