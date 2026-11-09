@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { canCreateSchool, canManageSchool } from "./permissions";
+import {
+  canCreateSchool,
+  canDeleteSchool,
+  canManageSchool,
+} from "./permissions";
 
 const teacherAt1AdminAt2 = {
   is_super_admin: false,
@@ -42,5 +46,16 @@ describe("canCreateSchool", () => {
   it("is false for everyone else", () => {
     expect(canCreateSchool(teacherAt1AdminAt2)).toBe(false);
     expect(canCreateSchool(null)).toBe(false);
+  });
+});
+
+describe("canDeleteSchool", () => {
+  it("is true only for super admins", () => {
+    expect(canDeleteSchool({ is_super_admin: true })).toBe(true);
+  });
+
+  it("is false for school admins and others", () => {
+    expect(canDeleteSchool(teacherAt1AdminAt2)).toBe(false);
+    expect(canDeleteSchool(undefined)).toBe(false);
   });
 });

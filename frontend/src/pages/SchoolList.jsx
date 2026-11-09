@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { canCreateSchool, canManageSchool } from "../lib/permissions";
 import { listSchools } from "../lib/schoolsApi";
 
 export default function SchoolList() {
   const { user } = useAuth();
+  const location = useLocation();
+  const notice = location.state?.notice;
   const [state, setState] = useState({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
@@ -28,7 +32,20 @@ export default function SchoolList() {
 
   return (
     <div className="container">
-      <h1>Schools</h1>
+      <div className="topbar">
+        <h1>Schools</h1>
+        {canCreateSchool(user) && (
+          <Link to="/schools/new" className="btn btn-primary">
+            New school
+          </Link>
+        )}
+      </div>
+
+      {notice && (
+        <p role="status" className="notice">
+          {notice}
+        </p>
+      )}
 
       {state.status === "loading" && <p role="status">Loading schools…</p>}
 
@@ -59,6 +76,9 @@ export default function SchoolList() {
                 <th scope="col">Status</th>
                 <th scope="col">Phone</th>
                 <th scope="col">Email</th>
+                <th scope="col">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -70,6 +90,17 @@ export default function SchoolList() {
                   </td>
                   <td>{school.phone || "—"}</td>
                   <td>{school.email || "—"}</td>
+                  <td>
+                    {canManageSchool(user, school.id) && (
+                      <Link
+                        to={`/schools/${school.id}/edit`}
+                        className="link"
+                        aria-label={`Edit ${school.name}`}
+                      >
+                        Edit
+                      </Link>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

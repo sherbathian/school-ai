@@ -13,3 +13,7 @@ export function canManageSchool(user, schoolId) {
 export function canCreateSchool(user) {
   return Boolean(user?.is_super_admin);
 }
+
+export function canDeleteSchool(user) {
+  return Boolean(user?.is_super_admin);
+}

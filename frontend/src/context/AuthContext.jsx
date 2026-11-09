@@ -56,6 +56,12 @@ export function AuthProvider({ children }) {
     setSchoolId(id);
   };
 
+  // Reload the user and their schools, e.g. after a school was renamed.
+  const refreshUser = useCallback(async () => {
+    const res = await api.get("/me");
+    setUser(res.data);
+  }, []);
+
   // Derived values: computed from state, never stored separately.
   const schools = user?.schools ?? [];
   const currentSchool =
@@ -77,6 +83,7 @@ export function AuthProvider({ children }) {
         currentSchool,
         selectSchool,
         hasRole,
+        refreshUser,
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth } from "../context/useAuth";
 import { listSchools } from "../lib/schoolsApi";
@@ -25,6 +26,14 @@ const south = {
   email: null,
 };
 
+function renderList(entry = "/schools") {
+  return render(
+    <MemoryRouter initialEntries={[entry]}>
+      <SchoolList />
+    </MemoryRouter>,
+  );
+}
+
 describe("SchoolList", () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -33,14 +42,14 @@ describe("SchoolList", () => {
 
   it("shows a loading message first", () => {
     listSchools.mockReturnValue(new Promise(() => {}));
-    render(<SchoolList />);
+    renderList();
 
     expect(screen.getByRole("status")).toHaveTextContent("Loading schools");
   });
 
   it("lists the schools with their status and contact details", async () => {
     listSchools.mockResolvedValue([north, south]);
-    render(<SchoolList />);
+    renderList();
 
     expect(await screen.findByRole("table")).toBeInTheDocument();
     expect(
@@ -56,14 +65,14 @@ describe("SchoolList", () => {
   it("tells a super admin when there are no schools", async () => {
     useAuth.mockReturnValue({ user: { is_super_admin: true, schools: [] } });
     listSchools.mockResolvedValue([]);
-    render(<SchoolList />);
+    renderList();
 
     expect(await screen.findByText("No schools yet.")).toBeInTheDocument();
   });
 
   it("tells other users their account is not linked to a school", async () => {
     listSchools.mockResolvedValue([]);
-    render(<SchoolList />);
+    renderList();
 
     expect(
       await screen.findByText(/isn't linked to a school/),
@@ -74,7 +83,7 @@ describe("SchoolList", () => {
     listSchools
       .mockRejectedValueOnce(new Error("Network Error"))
       .mockResolvedValueOnce([north]);
-    render(<SchoolList />);
+    renderList();
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "couldn't load the schools",
@@ -86,5 +95,51 @@ describe("SchoolList", () => {
 
     expect(await screen.findByText("North")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("offers New school only to super admins", async () => {
+    listSchools.mockResolvedValue([]);
+
+    useAuth.mockReturnValue({ user: { is_super_admin: true, schools: [] } });
+    const { unmount } = renderList();
+    expect(
+      await screen.findByRole("link", { name: "New school" }),
+    ).toHaveAttribute("href", "/schools/new");
+    unmount();
+
+    useAuth.mockReturnValue({ user: { is_super_admin: false, schools: [] } });
+    renderList();
+    await screen.findByText(/isn't linked to a school/);
+    expect(
+      screen.queryByRole("link", { name: "New school" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers Edit only for schools the user manages", async () => {
+    useAuth.mockReturnValue({
+      user: {
+        is_super_admin: false,
+        schools: [
+          { id: 1, role: "admin" },
+          { id: 2, role: "teacher" },
+        ],
+      },
+    });
+    listSchools.mockResolvedValue([north, south]);
+    renderList();
+
+    expect(
+      await screen.findByRole("link", { name: "Edit North" }),
+    ).toHaveAttribute("href", "/schools/1/edit");
+    expect(
+      screen.queryByRole("link", { name: "Edit South" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the notice passed from the previous page", async () => {
+    listSchools.mockResolvedValue([north]);
+    renderList({ pathname: "/schools", state: { notice: "School saved." } });
+
+    expect(await screen.findByText("School saved.")).toBeInTheDocument();
   });
 });
