@@ -3,7 +3,7 @@ import HealthStatus from "../components/HealthStatus";
 import SchoolSwitcher from "../components/SchoolSwitcher";
 
 export default function Dashboard() {
-  const { user, currentSchool, logout } = useAuth();
+  const { user, currentSchool } = useAuth();
 
   return (
     <div className="container">
@@ -22,9 +22,6 @@ export default function Dashboard() {
           </p>
         )}
         <HealthStatus />
-        <button className="btn" onClick={logout}>
-          Logout
-        </button>
       </div>
     </div>
   );

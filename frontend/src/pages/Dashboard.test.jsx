@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth } from "../context/useAuth";
 import Dashboard from "./Dashboard";
@@ -17,7 +16,6 @@ describe("Dashboard", () => {
     useAuth.mockReturnValue({
       user: { name: "Sam", is_super_admin: false },
       currentSchool: { name: "North", role: "teacher" },
-      logout: vi.fn(),
     });
     render(<Dashboard />);
 
@@ -31,7 +29,6 @@ describe("Dashboard", () => {
     useAuth.mockReturnValue({
       user: { name: "Root", is_super_admin: true },
       currentSchool: null,
-      logout: vi.fn(),
     });
     render(<Dashboard />);
 
@@ -42,28 +39,11 @@ describe("Dashboard", () => {
     useAuth.mockReturnValue({
       user: { name: "Lost", is_super_admin: false },
       currentSchool: null,
-      logout: vi.fn(),
     });
     render(<Dashboard />);
 
     expect(screen.getByRole("alert")).toHaveTextContent(
       /isn't linked to a school/,
     );
-  });
-
-  it("logs out when the button is clicked", async () => {
-    const logout = vi.fn();
-    useAuth.mockReturnValue({
-      user: { name: "Sam", is_super_admin: false },
-      currentSchool: { name: "North", role: "teacher" },
-      logout,
-    });
-    render(<Dashboard />);
-
-    await userEvent
-      .setup()
-      .click(screen.getByRole("button", { name: "Logout" }));
-
-    expect(logout).toHaveBeenCalledOnce();
   });
 });
