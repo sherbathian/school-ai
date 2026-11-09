@@ -1,5 +1,6 @@
 import { useAuth } from "../context/useAuth";
 import HealthStatus from "../components/HealthStatus";
+import SchoolSwitcher from "../components/SchoolSwitcher";
 
 export default function Dashboard() {
   const { user, currentSchool, logout } = useAuth();
@@ -8,6 +9,7 @@ export default function Dashboard() {
     <div className="container">
       <div className="card">
         <h1>Welcome, {user.name}</h1>
+        <SchoolSwitcher />
         {user.is_super_admin ? (
           <p>Role: super admin</p>
         ) : currentSchool ? (

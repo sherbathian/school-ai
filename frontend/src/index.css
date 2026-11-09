@@ -36,5 +36,9 @@ th { background: #f9fafb; font-size: 14px; }
 .login-box { max-width: 380px; margin: 100px auto; }
 .login-box .field { margin-bottom: 14px; }
 .link { color: #2563eb; text-decoration: underline; }
+.field select { width: 100%; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px; background: #fff; color: #1f2937; }
+.field select:focus { outline: 2px solid #93c5fd; border-color: #3b82f6; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.school-switcher { max-width: 320px; margin-bottom: 16px; }
 
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
