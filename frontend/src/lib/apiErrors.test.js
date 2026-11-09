@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { errorMessage, validationErrors } from "./apiErrors";
+import { errorMessage, firstErrorMessage, validationErrors } from "./apiErrors";
 
 describe("validationErrors", () => {
   it("returns the first message for each field of a 422", () => {
@@ -50,3 +50,32 @@ describe("errorMessage", () => {
     );
   });
 });
+
+  describe("firstErrorMessage", () => {
+    it("returns the first validation message", () => {
+      const error = {
+        response: {
+          status: 422,
+          data: {
+            errors: { role: ["A school must keep at least one admin."] },
+          },
+        },
+      };
+
+      expect(firstErrorMessage(error)).toBe(
+        "A school must keep at least one admin.",
+      );
+    });
+
+    it("falls back to the message for the status", () => {
+      expect(firstErrorMessage({ response: { status: 403 } })).toBe(
+        "You don't have permission to do that.",
+      );
+    });
+
+    it("falls back to the given text for anything else", () => {
+      expect(firstErrorMessage(new Error("x"), "Could not save.")).toBe(
+        "Could not save.",
+      );
+    });
+  });

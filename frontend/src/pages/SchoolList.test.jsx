@@ -115,7 +115,7 @@ describe("SchoolList", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("offers Edit only for schools the user manages", async () => {
+  it("offers Edit and Members only for schools the user manages", async () => {
     useAuth.mockReturnValue({
       user: {
         is_super_admin: false,
@@ -132,7 +132,13 @@ describe("SchoolList", () => {
       await screen.findByRole("link", { name: "Edit North" }),
     ).toHaveAttribute("href", "/schools/1/edit");
     expect(
+      screen.getByRole("link", { name: "Members of North" }),
+    ).toHaveAttribute("href", "/schools/1/members");
+    expect(
       screen.queryByRole("link", { name: "Edit South" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Members of South" }),
     ).not.toBeInTheDocument();
   });
 

@@ -92,13 +92,22 @@ export default function SchoolList() {
                   <td>{school.email || "—"}</td>
                   <td>
                     {canManageSchool(user, school.id) && (
-                      <Link
-                        to={`/schools/${school.id}/edit`}
-                        className="link"
-                        aria-label={`Edit ${school.name}`}
-                      >
-                        Edit
-                      </Link>
+                      <div className="row-actions">
+                        <Link
+                          to={`/schools/${school.id}/edit`}
+                          className="link"
+                          aria-label={`Edit ${school.name}`}
+                        >
+                          Edit
+                        </Link>
+                        <Link
+                          to={`/schools/${school.id}/members`}
+                          className="link"
+                          aria-label={`Members of ${school.name}`}
+                        >
+                          Members
+                        </Link>
+                      </div>
                     )}
                   </td>
                 </tr>

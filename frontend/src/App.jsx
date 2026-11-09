@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import SchoolCreate from "./pages/SchoolCreate";
 import SchoolEdit from "./pages/SchoolEdit";
 import SchoolList from "./pages/SchoolList";
+import SchoolMembers from "./pages/SchoolMembers";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/schools" element={<SchoolList />} />
         <Route path="/schools/new" element={<SchoolCreate />} />
         <Route path="/schools/:id/edit" element={<SchoolEdit />} />
+        <Route path="/schools/:id/members" element={<SchoolMembers />} />
       </Route>
     </Routes>
   );

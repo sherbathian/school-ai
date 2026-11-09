@@ -23,3 +23,12 @@ export function errorMessage(
       return fallback;
   }
 }
+
+// One sentence for places that show a single message: the first validation
+// message if there is one, otherwise the general message for the status.
+export function firstErrorMessage(error, fallback) {
+  const fields = validationErrors(error);
+  if (fields) return Object.values(fields)[0];
+
+  return errorMessage(error, fallback);
+}

@@ -54,5 +54,9 @@ a.btn { display: inline-block; text-decoration: none; }
 .notice { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 10px 14px; border-radius: 6px; }
 .danger { border: 1px solid #fecaca; background: #fef2f2; border-radius: 8px; padding: 14px; margin-top: 14px; }
 .danger .btn { margin-right: 8px; }
+.hint { color: #6b7280; font-size: 13px; margin: 4px 0 0; }
+.row-actions { display: flex; gap: 12px; }
+h1:focus { outline: none; }
+td select { padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: #fff; color: #1f2937; }
 
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
