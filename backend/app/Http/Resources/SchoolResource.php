@@ -18,7 +18,12 @@ class SchoolResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'status' => $this->status,
+            'status' => $this->status?->value,
+            'url' => $this->url,
+            'phone' => $this->phone,
+            'email' => $this->email,
+            'address' => $this->address,
+            'about' => $this->about,
         ];
     }
 }

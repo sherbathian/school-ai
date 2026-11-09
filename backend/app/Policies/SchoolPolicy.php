@@ -17,4 +17,21 @@ class SchoolPolicy
     {
         return $user->roleIn($school) === SchoolRole::Admin;
     }
+
+    public function update(User $user, School $school): bool
+    {
+        return $this->manage($user, $school);
+    }
+
+    // Only super admins create or delete schools. They pass through
+    // Gate::before, so these return false for everyone else.
+    public function create(User $user): bool
+    {
+        return false;
+    }
+
+    public function delete(User $user, School $school): bool
+    {
+        return false;
+    }
 }
