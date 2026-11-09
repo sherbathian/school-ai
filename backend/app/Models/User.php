@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Enums\SchoolRole;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -39,5 +40,13 @@ class User extends Authenticatable
             ->using(SchoolUser::class)
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    public function roleIn(School $school): ?SchoolRole
+    {
+        return $this->schools()
+            ->where('schools.id', $school->id)
+            ->first()
+            ?->pivot->role;
     }
 }
