@@ -6,6 +6,7 @@ use App\Enums\RecordStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 // school_id is deliberately not fillable: it is set through the school relation.
 #[Fillable(['title', 'status'])]
@@ -19,5 +20,10 @@ class Section extends Model
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    public function grades(): BelongsToMany
+    {
+        return $this->belongsToMany(Grade::class, 'grade_section');
     }
 }

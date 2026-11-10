@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolUserController;
@@ -42,4 +43,5 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('can:manage,school');
 
     Route::apiResource('schools.sections', SectionController::class)->scoped();
+    Route::apiResource('schools.grades', GradeController::class)->scoped();
 });

@@ -35,8 +35,12 @@ class DatabaseSeeder extends Seeder
         $school->users()->attach($admin, ['role' => SchoolRole::Admin->value]);
         $school->users()->attach($teacher, ['role' => SchoolRole::Teacher->value]);
 
-        foreach (['A', 'B', 'C'] as $title) {
-            $school->sections()->create(['title' => $title]);
+        $sections = collect(['A', 'B', 'C'])
+            ->map(fn($title) => $school->sections()->create(['title' => $title]));
+
+        foreach (['Grade 1', 'Grade 2', 'Grade 3'] as $title) {
+            $grade = $school->grades()->create(['title' => $title]);
+            $grade->sections()->attach($sections->take(2)->pluck('id')->all());
         }
     }
 }

@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\Section;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\ValidationException;
 
 class SectionController extends Controller implements HasMiddleware
 {
@@ -54,6 +55,12 @@ class SectionController extends Controller implements HasMiddleware
 
     public function destroy(School $school, Section $section)
     {
+        if ($section->grades()->exists()) {
+            throw ValidationException::withMessages([
+                'section' => ['This section is used by a grade. Remove it from the grade first, or mark the section inactive instead.'],
+            ]);
+        }
+
         $section->delete();
 
         return response()->noContent();
