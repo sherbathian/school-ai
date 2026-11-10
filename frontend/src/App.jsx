@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChangePassword from "./pages/ChangePassword";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import SchoolCreate from "./pages/SchoolCreate";
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/schools/new" element={<SchoolCreate />} />
         <Route path="/schools/:id/edit" element={<SchoolEdit />} />
         <Route path="/schools/:id/members" element={<SchoolMembers />} />
+        <Route path="/account/password" element={<ChangePassword />} />
       </Route>
     </Routes>
   );

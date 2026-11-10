@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canAttachExistingAccount,
   canCreateSchool,
   canDeleteSchool,
   canManageSchool,
@@ -57,5 +58,16 @@ describe("canDeleteSchool", () => {
   it("is false for school admins and others", () => {
     expect(canDeleteSchool(teacherAt1AdminAt2)).toBe(false);
     expect(canDeleteSchool(undefined)).toBe(false);
+  });
+});
+
+describe("canAttachExistingAccount", () => {
+  it("is true only for super admins", () => {
+    expect(canAttachExistingAccount({ is_super_admin: true })).toBe(true);
+  });
+
+  it("is false for school admins and others", () => {
+    expect(canAttachExistingAccount(teacherAt1AdminAt2)).toBe(false);
+    expect(canAttachExistingAccount(null)).toBe(false);
   });
 });

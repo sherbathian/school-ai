@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import api from "../api";
 import {
   addMember,
+  attachMember,
   changeMemberRole,
   listMembers,
   removeMember,
@@ -46,6 +47,18 @@ describe("membersApi", () => {
 
     expect(await addMember(1, values)).toEqual(sara);
     expect(api.post).toHaveBeenCalledWith("/schools/1/users", values);
+  });
+
+  it("attaches an existing account", async () => {
+    api.post.mockResolvedValue({ data: { data: sara } });
+
+    expect(
+      await attachMember(1, { email: "sara@school.test", role: "teacher" }),
+    ).toEqual(sara);
+    expect(api.post).toHaveBeenCalledWith("/schools/1/users/attach", {
+      email: "sara@school.test",
+      role: "teacher",
+    });
   });
 
   it("changes a member's role with a PATCH", async () => {

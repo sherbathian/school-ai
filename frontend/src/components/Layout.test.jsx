@@ -39,6 +39,14 @@ describe("Layout", () => {
     expect(screen.getByText("Sam")).toBeInTheDocument();
   });
 
+  it("links to the change password page", () => {
+    renderAt("/");
+
+    expect(
+      screen.getByRole("link", { name: "Change password" }),
+    ).toHaveAttribute("href", "/account/password");
+  });
+
   it("marks the current page", () => {
     renderAt("/schools");
 

@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import AddMemberForm from "../components/AddMemberForm";
+import AttachMemberForm from "../components/AttachMemberForm";
 import { useAuth } from "../context/useAuth";
 import { errorMessage, firstErrorMessage } from "../lib/apiErrors";
 import {
   addMember,
+  attachMember,
   changeMemberRole,
   listMembers,
   removeMember,
 } from "../lib/membersApi";
-import { canManageSchool } from "../lib/permissions";
+import { canAttachExistingAccount, canManageSchool } from "../lib/permissions";
 import { getSchool } from "../lib/schoolsApi";
 
 const byName = (a, b) => a.name.localeCompare(b.name);
@@ -40,6 +42,7 @@ function MembersLoader({ schoolId }) {
   const [removing, setRemoving] = useState(null);
   const [removeError, setRemoveError] = useState("");
   const [formKey, setFormKey] = useState(0);
+  const [attachKey, setAttachKey] = useState(0);
   const headingRef = useRef(null);
   const removeTrigger = useRef(null);
   const cancelButton = useRef(null);
@@ -78,6 +81,14 @@ function MembersLoader({ schoolId }) {
     if (memberId === user.id) await refreshUser().catch(() => {});
   };
 
+  const showNewMember = (member) => {
+    setState((current) => ({
+      ...current,
+      members: [...current.members, member].sort(byName),
+    }));
+    setNotice(`${member.name} was added.`);
+  };
+
   const handleRoleChange = async (member, role) => {
     setNotice("");
     setRowErrors((errors) => ({ ...errors, [member.id]: "" }));
@@ -107,14 +118,14 @@ function MembersLoader({ schoolId }) {
 
   const handleAdd = async (values) => {
     setNotice("");
-    const member = await addMember(schoolId, values);
-
-    setState((current) => ({
-      ...current,
-      members: [...current.members, member].sort(byName),
-    }));
-    setNotice(`${member.name} was added.`);
+    showNewMember(await addMember(schoolId, values));
     setFormKey((key) => key + 1); // a new key gives us a fresh, empty form
+  };
+
+  const handleAttach = async (values) => {
+    setNotice("");
+    showNewMember(await attachMember(schoolId, values));
+    setAttachKey((key) => key + 1);
   };
 
   const askToRemove = (member, event) => {
@@ -264,6 +275,13 @@ function MembersLoader({ schoolId }) {
 
           <h2>Add a person</h2>
           <AddMemberForm key={formKey} onSubmit={handleAdd} />
+
+          {canAttachExistingAccount(user) && (
+            <>
+              <h2>Add an existing account</h2>
+              <AttachMemberForm key={attachKey} onSubmit={handleAttach} />
+            </>
+          )}
         </>
       )}
     </div>

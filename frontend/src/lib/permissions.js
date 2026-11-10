@@ -17,3 +17,7 @@ export function canCreateSchool(user) {
 export function canDeleteSchool(user) {
   return Boolean(user?.is_super_admin);
 }
+
+export function canAttachExistingAccount(user) {
+  return Boolean(user?.is_super_admin);
+}

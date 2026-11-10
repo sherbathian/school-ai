@@ -16,6 +16,7 @@ export default function Layout() {
           </div>
           <div className="nav-user">
             <span>{user.name}</span>
+            <NavLink to="/account/password">Change password</NavLink>
             <button className="btn btn-small" onClick={logout}>
               Logout
             </button>

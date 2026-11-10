@@ -10,6 +10,11 @@ export async function addMember(schoolId, values) {
   return response.data.data;
 }
 
+export async function attachMember(schoolId, values) {
+  const response = await api.post(`/schools/${schoolId}/users/attach`, values);
+  return response.data.data;
+}
+
 export async function changeMemberRole(schoolId, userId, role) {
   const response = await api.patch(`/schools/${schoolId}/users/${userId}`, {
     role,
