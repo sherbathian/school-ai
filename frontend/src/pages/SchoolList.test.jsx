@@ -62,6 +62,15 @@ describe("SchoolList", () => {
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
+    it("links each school name to its page", async () => {
+      listSchools.mockResolvedValue([north]);
+      renderList();
+
+      expect(
+        await screen.findByRole("link", { name: "North" }),
+      ).toHaveAttribute("href", "/schools/1");
+    });
+
   it("tells a super admin when there are no schools", async () => {
     useAuth.mockReturnValue({ user: { is_super_admin: true, schools: [] } });
     listSchools.mockResolvedValue([]);

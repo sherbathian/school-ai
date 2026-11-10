@@ -84,7 +84,11 @@ export default function SchoolList() {
             <tbody>
               {state.schools.map((school) => (
                 <tr key={school.id}>
-                  <td>{school.name}</td>
+                  <td>
+                    <Link to={`/schools/${school.id}`} className="link">
+                      {school.name}
+                    </Link>
+                  </td>
                   <td>
                     {school.status === "inactive" ? "Inactive" : "Active"}
                   </td>

@@ -60,4 +60,7 @@ h1:focus { outline: none; }
 td select { padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: #fff; color: #1f2937; }
 .nav-user a { color: #1f2937; text-decoration: none; }
 .nav-user a[aria-current="page"] { font-weight: 600; }
+.link-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.link-list li { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+.link-list li:last-child { border-bottom: none; }
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
