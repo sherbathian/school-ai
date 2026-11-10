@@ -42,5 +42,15 @@ class DatabaseSeeder extends Seeder
             $grade = $school->grades()->create(['title' => $title]);
             $grade->sections()->attach($sections->take(2)->pluck('id')->all());
         }
+
+        $subjects = [
+            ['Mathematics', 'MATH', 'theory'],
+            ['English', 'ENG', 'theory'],
+            ['Physics Lab', 'PHY-LAB', 'practical'],
+        ];
+
+        foreach ($subjects as [$title, $code, $type]) {
+            $school->subjects()->create(['title' => $title, 'code' => $code, 'type' => $type]);
+        }
     }
 }
