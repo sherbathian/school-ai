@@ -63,4 +63,9 @@ td select { padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; fon
 .link-list { list-style: none; padding: 0; margin: 0 0 16px; }
 .link-list li { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
 .link-list li:last-child { border-bottom: none; }
+fieldset.checkbox-group { border: none; padding: 0; margin: 0; min-width: 0; }
+.checkbox-group legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 6px; }
+.checkbox-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.checkbox-list label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; margin-bottom: 0; }
+.checkbox-list input { width: auto; padding: 0; }
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }

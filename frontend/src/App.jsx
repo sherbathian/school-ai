@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import SchoolCreate from "./pages/SchoolCreate";
 import SchoolEdit from "./pages/SchoolEdit";
+import SchoolGrades from "./pages/SchoolGrades";
 import SchoolHome from "./pages/SchoolHome";
 import SchoolList from "./pages/SchoolList";
 import SchoolMembers from "./pages/SchoolMembers";
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/schools/:id/edit" element={<SchoolEdit />} />
         <Route path="/schools/:id/members" element={<SchoolMembers />} />
         <Route path="/schools/:id/sections" element={<SchoolSections />} />
+        <Route path="/schools/:id/grades" element={<SchoolGrades />} />
         <Route path="/account/password" element={<ChangePassword />} />
       </Route>
     </Routes>

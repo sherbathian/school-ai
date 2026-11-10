@@ -39,7 +39,7 @@ describe("SchoolHome", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Loading school");
   });
 
-  it("shows the school and its Sections link to a teacher, without admin links", async () => {
+  it("shows the school with its Sections and Grades links to a teacher, without admin links", async () => {
     getSchool.mockResolvedValue(north);
     renderHome(asTeacher);
 
@@ -49,6 +49,10 @@ describe("SchoolHome", () => {
     expect(screen.getByRole("link", { name: "Sections" })).toHaveAttribute(
       "href",
       "/schools/1/sections",
+    );
+    expect(screen.getByRole("link", { name: "Grades" })).toHaveAttribute(
+      "href",
+      "/schools/1/grades",
     );
     expect(
       screen.queryByRole("link", { name: "Members" }),

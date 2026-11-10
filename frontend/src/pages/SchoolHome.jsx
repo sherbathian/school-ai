@@ -44,6 +44,11 @@ export default function SchoolHome() {
                 Sections
               </Link>
             </li>
+            <li>
+              <Link to={`/schools/${schoolId}/grades`} className="link">
+                Grades
+              </Link>
+            </li>
           </ul>
 
           {canManageSchool(user, schoolId) && (
