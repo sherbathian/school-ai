@@ -6,6 +6,7 @@ use App\Enums\SchoolStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -25,6 +26,11 @@ class School extends Model
             ->using(SchoolUser::class)
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class);
     }
 
     /**

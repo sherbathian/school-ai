@@ -31,8 +31,12 @@ class DatabaseSeeder extends Seeder
 
         $admin = User::factory()->create(['name' => 'Demo Admin', 'email' => 'admin@school.test']);
         $teacher = User::factory()->create(['name' => 'Demo Teacher', 'email' => 'teacher@school.test']);
-
+        
         $school->users()->attach($admin, ['role' => SchoolRole::Admin->value]);
         $school->users()->attach($teacher, ['role' => SchoolRole::Teacher->value]);
+
+        foreach (['A', 'B', 'C'] as $title) {
+            $school->sections()->create(['title' => $title]);
+        }
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolUserController;
+use App\Http\Controllers\SectionController;
 use App\Models\School;
 use Illuminate\Support\Facades\Route;
 
@@ -39,4 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/schools/{school}/users/{userId}', [SchoolUserController::class, 'destroy'])
         ->whereNumber('userId')
         ->middleware('can:manage,school');
+
+    Route::apiResource('schools.sections', SectionController::class)->scoped();
 });
