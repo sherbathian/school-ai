@@ -11,6 +11,7 @@ import SchoolHome from "./pages/SchoolHome";
 import SchoolList from "./pages/SchoolList";
 import SchoolMembers from "./pages/SchoolMembers";
 import SchoolSections from "./pages/SchoolSections";
+import SchoolSubjects from "./pages/SchoolSubjects";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/schools/:id/members" element={<SchoolMembers />} />
         <Route path="/schools/:id/sections" element={<SchoolSections />} />
         <Route path="/schools/:id/grades" element={<SchoolGrades />} />
+        <Route path="/schools/:id/subjects" element={<SchoolSubjects />} />
         <Route path="/account/password" element={<ChangePassword />} />
       </Route>
     </Routes>

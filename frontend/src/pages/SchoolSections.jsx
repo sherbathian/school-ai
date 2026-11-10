@@ -1,17 +1,25 @@
-import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import ConfirmPanel from "../components/ConfirmPanel";
 import SectionForm from "../components/SectionForm";
 import { useAuth } from "../context/useAuth";
 import { sectionsApi } from "../lib/academicApi";
-import { errorMessage, firstErrorMessage } from "../lib/apiErrors";
 import { canManageSchool } from "../lib/permissions";
-import { getSchool } from "../lib/schoolsApi";
-
-const byTitle = (a, b) =>
-  a.title.localeCompare(b.title, undefined, { numeric: true });
+import { byTitle } from "../lib/sorting";
+import { useCrudPage } from "../lib/useCrudPage";
 
 const emptySection = { title: "", status: "active" };
+
+// A constant, because the hook's loading effect depends on it.
+const crud = {
+  api: sectionsApi,
+  sort: byTitle,
+  loadError: "We couldn't load the sections.",
+  messages: {
+    added: (section) => `Section ${section.title} was added.`,
+    saved: (section) => `Section ${section.title} was saved.`,
+    deleted: (section) => `Section ${section.title} was deleted.`,
+  },
+};
 
 export default function SchoolSections() {
   const { id } = useParams();
@@ -19,124 +27,22 @@ export default function SchoolSections() {
   const schoolId = Number(id);
   const canEdit = canManageSchool(user, schoolId);
 
-  const [state, setState] = useState({ status: "loading" });
-  const [notice, setNotice] = useState("");
-  const [editing, setEditing] = useState(null); // a section, or null for "add"
-  const [formKey, setFormKey] = useState(0);
-  const [focusForm, setFocusForm] = useState(false);
-  const [deleting, setDeleting] = useState(null);
-  const [deleteError, setDeleteError] = useState("");
-  const headingRef = useRef(null);
-  const editTrigger = useRef(null);
-  const deleteTrigger = useRef(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    Promise.all([
-      getSchool(schoolId, { signal: controller.signal }),
-      sectionsApi.list(schoolId, { signal: controller.signal }),
-    ])
-      .then(([school, sections]) =>
-        setState({
-          status: "ok",
-          school,
-          sections: [...sections].sort(byTitle),
-        }),
-      )
-      .catch((error) => {
-        if (error.code === "ERR_CANCELED") return;
-        setState({
-          status: "error",
-          message: errorMessage(error, "We couldn't load the sections."),
-        });
-      });
-
-    return () => controller.abort();
-  }, [schoolId]);
-
-  // A new key makes React build the form again with fresh starting values.
-  const resetForm = () => setFormKey((key) => key + 1);
-
-  const startEditing = (section, event) => {
-    editTrigger.current = event.currentTarget;
-    setNotice("");
-    setEditing(section);
-    setFocusForm(true);
-    resetForm();
-  };
-
-  const cancelEditing = () => {
-    setEditing(null);
-    setFocusForm(false);
-    resetForm();
-    editTrigger.current?.focus();
-  };
-
-  const handleSave = async (values) => {
-    setNotice("");
-
-    if (editing) {
-      const updated = await sectionsApi.update(schoolId, editing.id, values);
-      setState((current) => ({
-        ...current,
-        sections: current.sections
-          .map((section) => (section.id === updated.id ? updated : section))
-          .sort(byTitle),
-      }));
-      setNotice(`Section ${updated.title} was saved.`);
-      setEditing(null);
-      setFocusForm(false);
-      resetForm();
-      headingRef.current?.focus();
-    } else {
-      const created = await sectionsApi.create(schoolId, values);
-      setState((current) => ({
-        ...current,
-        sections: [...current.sections, created].sort(byTitle),
-      }));
-      setNotice(`Section ${created.title} was added.`);
-      setFocusForm(true); // ready for the next one
-      resetForm();
-    }
-  };
-
-  const askToDelete = (section, event) => {
-    deleteTrigger.current = event.currentTarget;
-    setNotice("");
-    setDeleteError("");
-    setDeleting(section);
-  };
-
-  const cancelDelete = () => {
-    setDeleting(null);
-    setDeleteError("");
-    deleteTrigger.current?.focus();
-  };
-
-  const confirmDelete = async () => {
-    const section = deleting;
-    setDeleteError("");
-
-    try {
-      await sectionsApi.remove(schoolId, section.id);
-      setState((current) => ({
-        ...current,
-        sections: current.sections.filter((s) => s.id !== section.id),
-      }));
-      if (editing?.id === section.id) {
-        setEditing(null);
-        setFocusForm(false);
-        resetForm();
-      }
-      setDeleting(null);
-      setNotice(`Section ${section.title} was deleted.`);
-      // The row that had focus is gone, so keep the user's place on the heading.
-      headingRef.current?.focus();
-    } catch (error) {
-      setDeleteError(firstErrorMessage(error));
-    }
-  };
+  const {
+    state,
+    notice,
+    editing,
+    formKey,
+    focusForm,
+    deleting,
+    deleteError,
+    headingRef,
+    startEditing,
+    cancelEditing,
+    save,
+    askToDelete,
+    cancelDelete,
+    confirmDelete,
+  } = useCrudPage(schoolId, crud);
 
   return (
     <div className="container">
@@ -158,7 +64,7 @@ export default function SchoolSections() {
 
       {state.status === "ok" && (
         <>
-          {state.sections.length === 0 ? (
+          {state.items.length === 0 ? (
             <p className="card empty">
               No sections yet.{canEdit ? " Add the first one below." : ""}
             </p>
@@ -180,7 +86,7 @@ export default function SchoolSections() {
                   </tr>
                 </thead>
                 <tbody>
-                  {state.sections.map((section) => (
+                  {state.items.map((section) => (
                     <tr key={section.id}>
                       <td>{section.title}</td>
                       <td>
@@ -235,7 +141,7 @@ export default function SchoolSections() {
                     ? { title: editing.title, status: editing.status }
                     : emptySection
                 }
-                onSubmit={handleSave}
+                onSubmit={save}
                 submitLabel={editing ? "Save changes" : "Add section"}
                 onCancel={editing ? cancelEditing : undefined}
                 autoFocus={focusForm}

@@ -1,17 +1,31 @@
-import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import ConfirmPanel from "../components/ConfirmPanel";
 import GradeForm from "../components/GradeForm";
 import { useAuth } from "../context/useAuth";
 import { gradesApi, sectionsApi } from "../lib/academicApi";
-import { errorMessage, firstErrorMessage } from "../lib/apiErrors";
 import { canManageSchool } from "../lib/permissions";
-import { getSchool } from "../lib/schoolsApi";
-
-const byTitle = (a, b) =>
-  a.title.localeCompare(b.title, undefined, { numeric: true });
+import { byTitle } from "../lib/sorting";
+import { useCrudPage } from "../lib/useCrudPage";
 
 const emptyGrade = { title: "", status: "active", section_ids: [] };
+
+// The form offers the school's sections, so they are loaded alongside the grades.
+const loadSections = async (schoolId, options) => ({
+  sections: [...(await sectionsApi.list(schoolId, options))].sort(byTitle),
+});
+
+// A constant, because the hook's loading effect depends on it.
+const crud = {
+  api: gradesApi,
+  sort: byTitle,
+  loadExtra: loadSections,
+  loadError: "We couldn't load the grades.",
+  messages: {
+    added: (grade) => `${grade.title} was added.`,
+    saved: (grade) => `${grade.title} was saved.`,
+    deleted: (grade) => `${grade.title} was deleted.`,
+  },
+};
 
 export default function SchoolGrades() {
   const { id } = useParams();
@@ -19,127 +33,22 @@ export default function SchoolGrades() {
   const schoolId = Number(id);
   const canEdit = canManageSchool(user, schoolId);
 
-  const [state, setState] = useState({ status: "loading" });
-  const [notice, setNotice] = useState("");
-  const [editing, setEditing] = useState(null); // a grade, or null for "add"
-  const [formKey, setFormKey] = useState(0);
-  const [focusForm, setFocusForm] = useState(false);
-  const [deleting, setDeleting] = useState(null);
-  const [deleteError, setDeleteError] = useState("");
-  const headingRef = useRef(null);
-  const editTrigger = useRef(null);
-  const deleteTrigger = useRef(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const options = { signal: controller.signal };
-
-    Promise.all([
-      getSchool(schoolId, options),
-      gradesApi.list(schoolId, options),
-      sectionsApi.list(schoolId, options),
-    ])
-      .then(([school, grades, sections]) =>
-        setState({
-          status: "ok",
-          school,
-          grades: [...grades].sort(byTitle),
-          sections: [...sections].sort(byTitle),
-        }),
-      )
-      .catch((error) => {
-        if (error.code === "ERR_CANCELED") return;
-        setState({
-          status: "error",
-          message: errorMessage(error, "We couldn't load the grades."),
-        });
-      });
-
-    return () => controller.abort();
-  }, [schoolId]);
-
-  // A new key makes React build the form again with fresh starting values.
-  const resetForm = () => setFormKey((key) => key + 1);
-
-  const startEditing = (grade, event) => {
-    editTrigger.current = event.currentTarget;
-    setNotice("");
-    setEditing(grade);
-    setFocusForm(true);
-    resetForm();
-  };
-
-  const cancelEditing = () => {
-    setEditing(null);
-    setFocusForm(false);
-    resetForm();
-    editTrigger.current?.focus();
-  };
-
-  const handleSave = async (values) => {
-    setNotice("");
-
-    if (editing) {
-      const updated = await gradesApi.update(schoolId, editing.id, values);
-      setState((current) => ({
-        ...current,
-        grades: current.grades
-          .map((grade) => (grade.id === updated.id ? updated : grade))
-          .sort(byTitle),
-      }));
-      setNotice(`${updated.title} was saved.`);
-      setEditing(null);
-      setFocusForm(false);
-      resetForm();
-      headingRef.current?.focus();
-    } else {
-      const created = await gradesApi.create(schoolId, values);
-      setState((current) => ({
-        ...current,
-        grades: [...current.grades, created].sort(byTitle),
-      }));
-      setNotice(`${created.title} was added.`);
-      setFocusForm(true); // ready for the next one
-      resetForm();
-    }
-  };
-
-  const askToDelete = (grade, event) => {
-    deleteTrigger.current = event.currentTarget;
-    setNotice("");
-    setDeleteError("");
-    setDeleting(grade);
-  };
-
-  const cancelDelete = () => {
-    setDeleting(null);
-    setDeleteError("");
-    deleteTrigger.current?.focus();
-  };
-
-  const confirmDelete = async () => {
-    const grade = deleting;
-    setDeleteError("");
-
-    try {
-      await gradesApi.remove(schoolId, grade.id);
-      setState((current) => ({
-        ...current,
-        grades: current.grades.filter((g) => g.id !== grade.id),
-      }));
-      if (editing?.id === grade.id) {
-        setEditing(null);
-        setFocusForm(false);
-        resetForm();
-      }
-      setDeleting(null);
-      setNotice(`${grade.title} was deleted.`);
-      // The row that had focus is gone, so keep the user's place on the heading.
-      headingRef.current?.focus();
-    } catch (error) {
-      setDeleteError(firstErrorMessage(error));
-    }
-  };
+  const {
+    state,
+    notice,
+    editing,
+    formKey,
+    focusForm,
+    deleting,
+    deleteError,
+    headingRef,
+    startEditing,
+    cancelEditing,
+    save,
+    askToDelete,
+    cancelDelete,
+    confirmDelete,
+  } = useCrudPage(schoolId, crud);
 
   const sectionOptions =
     state.status === "ok"
@@ -170,7 +79,7 @@ export default function SchoolGrades() {
 
       {state.status === "ok" && (
         <>
-          {state.grades.length === 0 ? (
+          {state.items.length === 0 ? (
             <p className="card empty">
               No grades yet.{canEdit ? " Add the first one below." : ""}
             </p>
@@ -193,7 +102,7 @@ export default function SchoolGrades() {
                   </tr>
                 </thead>
                 <tbody>
-                  {state.grades.map((grade) => (
+                  {state.items.map((grade) => (
                     <tr key={grade.id}>
                       <td>{grade.title}</td>
                       <td>
@@ -258,7 +167,7 @@ export default function SchoolGrades() {
                     : emptyGrade
                 }
                 sectionOptions={sectionOptions}
-                onSubmit={handleSave}
+                onSubmit={save}
                 submitLabel={editing ? "Save changes" : "Add grade"}
                 onCancel={editing ? cancelEditing : undefined}
                 autoFocus={focusForm}
