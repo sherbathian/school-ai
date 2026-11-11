@@ -11,6 +11,7 @@ import SchoolHome from "./pages/SchoolHome";
 import SchoolList from "./pages/SchoolList";
 import SchoolMembers from "./pages/SchoolMembers";
 import SchoolSections from "./pages/SchoolSections";
+import SchoolSubjectGroups from "./pages/SchoolSubjectGroups";
 import SchoolSubjects from "./pages/SchoolSubjects";
 
 export default function App() {
@@ -33,6 +34,10 @@ export default function App() {
         <Route path="/schools/:id/sections" element={<SchoolSections />} />
         <Route path="/schools/:id/grades" element={<SchoolGrades />} />
         <Route path="/schools/:id/subjects" element={<SchoolSubjects />} />
+        <Route
+          path="/schools/:id/subject-groups"
+          element={<SchoolSubjectGroups />}
+        />
         <Route path="/account/password" element={<ChangePassword />} />
       </Route>
     </Routes>

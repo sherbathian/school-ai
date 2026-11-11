@@ -59,6 +59,9 @@ describe("SchoolHome", () => {
       "/schools/1/subjects",
     );
     expect(
+      screen.getByRole("link", { name: "Subject groups" }),
+    ).toHaveAttribute("href", "/schools/1/subject-groups");
+    expect(
       screen.queryByRole("link", { name: "Members" }),
     ).not.toBeInTheDocument();
     expect(

@@ -54,6 +54,11 @@ export default function SchoolHome() {
                 Subjects
               </Link>
             </li>
+            <li>
+              <Link to={`/schools/${schoolId}/subject-groups`} className="link">
+                Subject groups
+              </Link>
+            </li>
           </ul>
 
           {canManageSchool(user, schoolId) && (
