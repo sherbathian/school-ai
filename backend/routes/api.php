@@ -7,6 +7,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolUserController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\SubjectGroupController;
 use App\Models\School;
 use Illuminate\Support\Facades\Route;
 
@@ -46,4 +47,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('schools.sections', SectionController::class)->scoped();
     Route::apiResource('schools.grades', GradeController::class)->scoped();
     Route::apiResource('schools.subjects', SubjectController::class)->scoped();
+    Route::apiResource('schools.subject-groups', SubjectGroupController::class)->scoped();
 });

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // school_id is deliberately not fillable: it is set through the school relation.
 #[Fillable(['title', 'status'])]
@@ -25,5 +26,10 @@ class Grade extends Model
     public function sections(): BelongsToMany
     {
         return $this->belongsToMany(Section::class, 'grade_section');
+    }
+
+    public function subjectGroups(): HasMany
+    {
+        return $this->hasMany(SubjectGroup::class);
     }
 }

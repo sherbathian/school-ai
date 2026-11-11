@@ -26,4 +26,9 @@ class Section extends Model
     {
         return $this->belongsToMany(Grade::class, 'grade_section');
     }
+
+    public function subjectGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(SubjectGroup::class, 'subject_group_section');
+    }
 }

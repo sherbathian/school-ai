@@ -43,6 +43,11 @@ class School extends Model
         return $this->hasMany(Subject::class);
     }
 
+    public function subjectGroups(): HasMany
+    {
+        return $this->hasMany(SubjectGroup::class);
+    }
+
     /**
      * A URL-friendly, unique slug for a new school. Deleted schools are
      * included in the check because the unique index still covers them.

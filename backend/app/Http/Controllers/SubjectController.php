@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\Subject;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\ValidationException;
 
 class SubjectController extends Controller implements HasMiddleware
 {
@@ -54,6 +55,12 @@ class SubjectController extends Controller implements HasMiddleware
 
     public function destroy(School $school, Subject $subject)
     {
+        if ($subject->subjectGroups()->exists()) {
+            throw ValidationException::withMessages([
+                'subject' => ['This subject is used by a subject group. Remove it from the group first, or mark the subject inactive instead.'],
+            ]);
+        }
+
         $subject->delete();
 
         return response()->noContent();

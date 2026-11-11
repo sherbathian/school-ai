@@ -7,10 +7,12 @@ use App\Http\Requests\GradeRequest;
 use App\Http\Resources\GradeResource;
 use App\Models\Grade;
 use App\Models\School;
+use App\Models\Section;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class GradeController extends Controller implements HasMiddleware
 {
@@ -64,6 +66,8 @@ class GradeController extends Controller implements HasMiddleware
             $grade->update(Arr::except($data, ['section_ids']));
 
             if (array_key_exists('section_ids', $data)) {
+                // If this throws, the transaction also undoes the update above.
+                $this->ensureNoGroupUsesRemovedSections($grade, $data['section_ids']);
                 $grade->sections()->sync($data['section_ids']);
             }
         });
@@ -73,12 +77,43 @@ class GradeController extends Controller implements HasMiddleware
 
     public function destroy(School $school, Grade $grade)
     {
+        if ($grade->subjectGroups()->exists()) {
+            throw ValidationException::withMessages([
+                'grade' => ['This grade has subject groups. Delete them first, or mark the grade inactive instead.'],
+            ]);
+        }
+
         DB::transaction(function () use ($grade) {
             $grade->sections()->detach();
             $grade->delete();
         });
 
         return response()->noContent();
+    }
+
+    /** A subject group of this grade may only use sections the grade still has. */
+    private function ensureNoGroupUsesRemovedSections(Grade $grade, array $keptIds): void
+    {
+        $removedIds = $grade->sections()
+            ->pluck('sections.id')
+            ->diff($keptIds)
+            ->values()
+            ->all();
+
+        $blocked = Section::query()
+            ->whereIn('id', $removedIds)
+            ->whereHas('subjectGroups', fn($query) => $query->where('subject_groups.grade_id', $grade->id))
+            ->orderBy('title')
+            ->pluck('title');
+
+        if ($blocked->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'section_ids' => [
+                    'These sections are still used by a subject group of this grade: '
+                        . $blocked->join(', ') . '. Remove them from the group first.',
+                ],
+            ]);
+        }
     }
 
     private function withSections(Grade $grade): Grade
